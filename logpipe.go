@@ -92,6 +92,14 @@ mainLoop:
 		}
 	}
 
+	// Flushing might cause an error, which will call OnError, so we need to check whether that happened
+	logger.Flush()
+	close(errc)
+	for err := range errc {
+		log.Println(err)
+	}
+	// Another option would be to set client.OnError to nil, but that'd be a data race!
+
 	// Closes the client and flushes the buffer to the Stackdriver Logging
 	// service.
 	if err := client.Close(); err != nil {
